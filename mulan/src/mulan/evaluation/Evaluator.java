@@ -30,11 +30,7 @@ import mulan.classifier.MultiLabelLearner;
 import mulan.classifier.MultiLabelOutput;
 import mulan.classifier.clus.ClusWrapperClassification;
 import mulan.data.MultiLabelInstances;
-import mulan.evaluation.measure.AverageMAE;
 import mulan.evaluation.measure.AveragePrecision;
-import mulan.evaluation.measure.AverageRMSE;
-import mulan.evaluation.measure.AverageRelativeMAE;
-import mulan.evaluation.measure.AverageRelativeRMSE;
 import mulan.evaluation.measure.Coverage;
 import mulan.evaluation.measure.ErrorSetSize;
 import mulan.evaluation.measure.ExampleBasedAccuracy;
@@ -64,6 +60,12 @@ import mulan.evaluation.measure.MicroSpecificity;
 import mulan.evaluation.measure.OneError;
 import mulan.evaluation.measure.RankingLoss;
 import mulan.evaluation.measure.SubsetAccuracy;
+import mulan.evaluation.measures.regression.example.ExampleBasedRMaxSE;
+import mulan.evaluation.measures.regression.macro.MacroMAE;
+import mulan.evaluation.measures.regression.macro.MacroRMSE;
+import mulan.evaluation.measures.regression.macro.MacroRMaxSE;
+import mulan.evaluation.measures.regression.macro.MacroRelMAE;
+import mulan.evaluation.measures.regression.macro.MacroRelRMSE;
 import weka.core.Instance;
 import weka.core.Instances;
 import clus.Clus;
@@ -253,12 +255,15 @@ public class Evaluator {
             if (mlTestData.getLabelsMetaData().isHierarchy()) {
                 measures.add(new HierarchicalLoss(mlTestData));
             }
-            // add regression measures if applicable
+         // add regression measures if applicable
             if (prediction.hasPvalues()) {
-                measures.add(new AverageRMSE(numOfLabels));
-                measures.add(new AverageRelativeRMSE(numOfLabels, mlTrainData, mlTestData));
-                measures.add(new AverageMAE(numOfLabels));
-                measures.add(new AverageRelativeMAE(numOfLabels, mlTrainData, mlTestData));
+                measures.add(new MacroRMSE(numOfLabels));
+                measures.add(new MacroRelRMSE(mlTrainData, mlTestData));
+                measures.add(new MacroMAE(numOfLabels));
+                measures.add(new MacroRelMAE(mlTrainData, mlTestData));
+                measures.add(new MacroRMaxSE(numOfLabels));
+                measures.add(new ExampleBasedRMaxSE());
+
             }
         } catch (Exception ex) {
             Logger.getLogger(Evaluator.class.getName()).log(Level.SEVERE, null, ex);

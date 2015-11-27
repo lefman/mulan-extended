@@ -43,7 +43,7 @@ public class MultiTargetStacking extends TransformationBasedMultiTargetRegressor
         /**
          * Using the full training set.
          */
-        TRAIN,
+        INSAMPLE,
         /**
          * Using the true target values.
          */
@@ -57,7 +57,7 @@ public class MultiTargetStacking extends TransformationBasedMultiTargetRegressor
     /**
      * The method used to obtain the values of the meta features. TRAIN is used by default.
      */
-    private metaType meta = metaType.TRAIN;
+    private metaType meta = metaType.INSAMPLE;
 
     /**
      * The number of folds to use in internal k fold cross-validation. 3 folds are used by default.
@@ -189,7 +189,7 @@ public class MultiTargetStacking extends TransformationBasedMultiTargetRegressor
                     System.out.println("Something went wrong: indices size is " + indices.size()
                             + " instead of " + trainSet.numInstances());
                 }
-            } else if (meta == metaType.TRAIN) {
+            } else if (meta == metaType.INSAMPLE) {
                 // Make prediction for each in the training set instance
                 for (int i = 0; i < firstStageTrainSet.numInstances(); i++) {
                     double score = firstStageRegressors[targetIndex]
@@ -286,42 +286,6 @@ public class MultiTargetStacking extends TransformationBasedMultiTargetRegressor
             // debug("Building classifier for meta training set " + targetIndex);
             secondStageRegressors[targetIndex].buildClassifier(secondStageTrainsets[targetIndex]);
             secondStageTrainsets[targetIndex].delete();
-
-            String output = secondStageRegressors[targetIndex].toString();
-            // if this is a classifier that performs attribute selection (i.e.
-            // AttributeSelectedClassifier or InfoTheoreticFeatureSelectionClassifier)
-            if (output.contains("Selected attributes: ")) {
-                // gather and output information about which feature and which target attributes
-                // were selected
-                String selectedString = output.split("Selected attributes: ")[1].split(" :")[0];
-                String[] selectedIndicesString = selectedString.split(",");
-                for (int j = 0; j < selectedIndicesString.length; j++) {
-                    int selectedIndex = Integer.parseInt(selectedIndicesString[j]) - 1;
-                    boolean isTarget = false;
-                    for (int k = 0; k < numLabels; k++) {
-                        String nameOfKthTarget = trainSet.attribute(labelIndices[k]).name();
-                        String nameOfSelectedAttribute = secondStageTrainsets[targetIndex]
-                                .attribute(selectedIndex).name();
-                        if (nameOfKthTarget.equals(nameOfSelectedAttribute)) {
-                            selectedTargetIndices[targetIndex].add(labelIndices[k]);
-                            isTarget = true;
-                            break;
-                        }
-                    }
-                    if (!isTarget) {
-                        selectedFeatureIndices[targetIndex].add(selectedIndex);
-                    }
-                }
-
-                System.err.println("# selected feature attributes for target " + targetIndex + ": "
-                        + selectedFeatureIndices[targetIndex].size());
-                System.err.println(selectedFeatureIndices[targetIndex].toString());
-                System.err.println("# selected target attributes for target " + targetIndex + ": "
-                        + selectedTargetIndices[targetIndex].size());
-                System.err.println(selectedTargetIndices[targetIndex].toString());
-                System.err.flush();
-            }
-
         }
     }
 
