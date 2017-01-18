@@ -40,8 +40,8 @@ import weka.filters.AllFilter;
 
 /**
  * This class replicates the results of the paper:<br>
- * "Multi-Target Regression via Input Space Expansion: Treating Targets as Inputs", currently under review in the
- * Machine Learning journal (Springer).
+ * Spyromitros-Xioufis, E., Tsoumakas, G., Groves, W., Vlahavas, I. Mach Learn (2016)
+ * 104: 55. doi:10.1007/s10994-016-5546-z.
  * 
  * @author Eleftherios Spyromitros-Xioufis
  */
@@ -63,6 +63,9 @@ public class MTRExperimentMLJ {
 	 *            <li><b>-slots:</b> number of execution slots to be used by Weka's/Malsar's algorithms that support
 	 *            this option (optional, default=1)</li>
 	 *            </ul>
+	 *            Example set of parameters: -path "data/" -filestem
+	 *            "solar-flare_1" -targets 3 -eval "cv-10" -mt "ST,ERC_{true}"
+	 *            -base "bag" -slots 2
 	 * @throws Exception
 	 */
 	public static void main(String[] args) throws Exception {
