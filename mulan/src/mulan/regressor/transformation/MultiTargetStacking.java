@@ -125,7 +125,7 @@ public class MultiTargetStacking extends TransformationBasedMultiTargetRegressor
     @Override
     protected void buildInternal(MultiLabelInstances mlTrainSet) throws Exception {
         secondStageTrainsets = new Instances[numLabels];
-        firstStageRegressors = AbstractClassifier.makeCopies(baseRegressor, numLabels);
+        firstStageRegressors = AbstractClassifier.makeCopies(baseLearner, numLabels);
         secondStageRegressors = AbstractClassifier.makeCopies(secondStageBaseRegressor, numLabels);
         metaFeatures = new double[mlTrainSet.getDataSet().numInstances()][numLabels];
         stt = new SingleTargetTransformation(mlTrainSet);
@@ -165,7 +165,7 @@ public class MultiTargetStacking extends TransformationBasedMultiTargetRegressor
                     // create a filtered meta classifier, used to ignore the index attribute in the
                     // build process
                     FilteredClassifier fil = new FilteredClassifier();
-                    fil.setClassifier(AbstractClassifier.makeCopy(baseRegressor));
+                    fil.setClassifier(AbstractClassifier.makeCopy(baseLearner));
                     Remove remove = new Remove();
                     remove.setAttributeIndices("first");
                     remove.setInputFormat(foldKTrainSet);
@@ -207,7 +207,7 @@ public class MultiTargetStacking extends TransformationBasedMultiTargetRegressor
                 resample.setInputFormat(firstStageTrainSet);
                 Instances sampledFirstStageTrainSet = Filter
                         .useFilter(firstStageTrainSet, resample);
-                Classifier sampledfirstStageRegressor = AbstractClassifier.makeCopy(baseRegressor);
+                Classifier sampledfirstStageRegressor = AbstractClassifier.makeCopy(baseLearner);
                 sampledfirstStageRegressor.buildClassifier(sampledFirstStageTrainSet);
 
                 // Make prediction for each instance in the training set
@@ -349,7 +349,6 @@ public class MultiTargetStacking extends TransformationBasedMultiTargetRegressor
         return mlo;
     }
 
-    @Override
     protected String getModelForTarget(int targetIndex) {
         try {
             secondStageRegressors[targetIndex].getClass().getMethod("toString", (Class<?>[]) null);

@@ -61,6 +61,7 @@ import mulan.evaluation.measure.OneError;
 import mulan.evaluation.measure.RankingLoss;
 import mulan.evaluation.measure.SubsetAccuracy;
 import mulan.evaluation.measures.regression.example.ExampleBasedRMaxSE;
+import mulan.evaluation.measures.regression.example.ExampleBasedSE;
 import mulan.evaluation.measures.regression.macro.MacroMAE;
 import mulan.evaluation.measures.regression.macro.MacroRMSE;
 import mulan.evaluation.measures.regression.macro.MacroRMaxSE;
@@ -68,6 +69,8 @@ import mulan.evaluation.measures.regression.macro.MacroRelMAE;
 import mulan.evaluation.measures.regression.macro.MacroRelRMSE;
 import weka.core.Instance;
 import weka.core.Instances;
+import weka.filters.Filter;
+import weka.filters.unsupervised.instance.RemovePercentage;
 import clus.Clus;
 
 /**
@@ -125,9 +128,10 @@ public class Evaluator {
             boolean hasMissingLabels = mlTestData.hasMissingLabels(instance);
             Instance labelsMissing = (Instance) instance.copy();
             labelsMissing.setDataset(instance.dataset());
-            for (int i = 0; i < mlTestData.getNumLabels(); i++) {
-                labelsMissing.setMissing(labelIndices[i]);
-            }
+			// avoid setting labels to missing so that oracle learners can work
+			// for (int i = 0; i < mlTestData.getNumLabels(); i++) {
+			// labelsMissing.setMissing(labelIndices[i]);
+			// }
             MultiLabelOutput output = learner.makePrediction(labelsMissing);
             if (output.hasPvalues()) {// check if we have regression outputs
                 truth = new GroundTruth(getTrueScores(instance, numLabels, labelIndices));
@@ -255,7 +259,7 @@ public class Evaluator {
             if (mlTestData.getLabelsMetaData().isHierarchy()) {
                 measures.add(new HierarchicalLoss(mlTestData));
             }
-         // add regression measures if applicable
+            // add regression measures if applicable
             if (prediction.hasPvalues()) {
                 measures.add(new MacroRMSE(numOfLabels));
                 measures.add(new MacroRelRMSE(mlTrainData, mlTestData));
@@ -263,6 +267,7 @@ public class Evaluator {
                 measures.add(new MacroRelMAE(mlTrainData, mlTestData));
                 measures.add(new MacroRMaxSE(numOfLabels));
                 measures.add(new ExampleBasedRMaxSE());
+                measures.add(new ExampleBasedSE());
 
             }
         } catch (Exception ex) {
@@ -521,5 +526,38 @@ public class Evaluator {
 
         return new Evaluation(measures, testData);
     }
+    
+
+	/**
+	 * 
+	 * Utility method that produces a random train/test split of the given data
+	 * 
+	 * @param data
+	 *            the initial data
+	 * @param trainPct
+	 *            the percentage of data to use for training (0.0-100.0)
+	 * @param seed
+	 *            the random seed to use for the split
+	 * @return An array where the 1st element is the training set and the 2nd is the test set.
+	 * @throws Exception
+	 */
+	public static MultiLabelInstances[] trainTestSplit(MultiLabelInstances data, double trainPct, int seed)
+			throws Exception {
+		Instances dataSet = new Instances(data.getDataSet());
+		dataSet.randomize(new Random(seed));
+		RemovePercentage rmvp = new RemovePercentage();
+		rmvp.setInvertSelection(true);
+		rmvp.setPercentage(trainPct);
+		rmvp.setInputFormat(dataSet);
+		Instances train = Filter.useFilter(dataSet, rmvp);
+		rmvp = new RemovePercentage();
+		rmvp.setPercentage(trainPct);
+		rmvp.setInputFormat(dataSet);
+		Instances test = Filter.useFilter(dataSet, rmvp);
+		MultiLabelInstances trainMT = new MultiLabelInstances(train, data.getLabelsMetaData());
+		MultiLabelInstances testMT = new MultiLabelInstances(test, data.getLabelsMetaData());
+
+		return new MultiLabelInstances[] { trainMT, testMT };
+	}
 
 }

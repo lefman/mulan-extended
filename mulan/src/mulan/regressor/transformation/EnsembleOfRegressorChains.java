@@ -164,7 +164,7 @@ public class EnsembleOfRegressorChains extends TransformationBasedMultiTargetReg
                 }
             }
 
-            ensemble[i] = new RegressorChain(baseRegressor, chain);
+            ensemble[i] = new RegressorChain(baseLearner, chain);
             ensemble[i].setNumFolds(numFolds);
             ensemble[i].setMeta(meta);
             ensemble[i].setDebug(getDebug());
@@ -197,7 +197,6 @@ public class EnsembleOfRegressorChains extends TransformationBasedMultiTargetReg
         return mlo;
     }
 
-    @Override
     protected String getModelForTarget(int targetIndex) {
         StringBuffer output = new StringBuffer();
         for (int i = 0; i < numOfModels; i++) {

@@ -110,7 +110,7 @@ public class RegressorChainSimple extends TransformationBasedMultiTargetRegresso
 
         for (int i = 0; i < numLabels; i++) {
             chainRegressors[i] = new FilteredClassifier();
-            chainRegressors[i].setClassifier(AbstractClassifier.makeCopy(baseRegressor));
+            chainRegressors[i].setClassifier(AbstractClassifier.makeCopy(baseLearner));
 
             // Indices of attributes to remove.
             // First removes numLabels attributes, then numLabels - 1 attributes and so on.
@@ -161,7 +161,6 @@ public class RegressorChainSimple extends TransformationBasedMultiTargetRegresso
         return mlo;
     }
 
-    @Override
     protected String getModelForTarget(int targetIndex) {
         try {
             chainRegressors[targetIndex].getClassifier().getClass()

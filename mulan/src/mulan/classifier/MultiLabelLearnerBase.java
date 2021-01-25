@@ -59,7 +59,7 @@ public abstract class MultiLabelLearnerBase
      */
     protected int[] featureIndices;
     /** Whether debugging is on/off */
-    private boolean isDebug = false;
+    protected boolean isDebug = false;
 
     public boolean isUpdatable() {
         /** as default learners are assumed not to be updatable */

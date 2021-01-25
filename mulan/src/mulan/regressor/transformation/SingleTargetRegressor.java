@@ -60,7 +60,7 @@ public class SingleTargetRegressor extends TransformationBasedMultiTargetRegress
         Instances trainSet = new Instances(mlTrainSet.getDataSet());
         for (int i = 0; i < numLabels; i++) {
             stRegressors[i] = new FilteredClassifier();
-            stRegressors[i].setClassifier(AbstractClassifier.makeCopy(baseRegressor));
+            stRegressors[i].setClassifier(AbstractClassifier.makeCopy(baseLearner));
 
             // Indices of attributes to remove. All labelIndices except for the current index
             int[] indicesToRemove = new int[numLabels - 1];
@@ -99,7 +99,6 @@ public class SingleTargetRegressor extends TransformationBasedMultiTargetRegress
         return mlo;
     }
 
-    @Override
     public String getModelForTarget(int target) {
         try {
             stRegressors[target].getClassifier().getClass()

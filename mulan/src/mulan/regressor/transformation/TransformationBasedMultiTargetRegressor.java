@@ -36,9 +36,9 @@ public abstract class TransformationBasedMultiTargetRegressor extends MultiLabel
 
     private static final long serialVersionUID = 1L;
     /**
-     * The underlying single-target regressor.
+     * The underlying single-target learner.
      */
-    protected Classifier baseRegressor;
+    protected Classifier baseLearner;
 
     /**
      * Creates a new instance of {@link TransformationBasedMultiTargetRegressor} with default {@link ZeroR}
@@ -48,22 +48,23 @@ public abstract class TransformationBasedMultiTargetRegressor extends MultiLabel
         this(new ZeroR());
     }
 
-    /**
-     * Creates a new instance.
-     * 
-     * @param baseRegressor the base regressor which will be used internally to handle the data.
-     */
-    public TransformationBasedMultiTargetRegressor(Classifier baseRegressor) {
-        this.baseRegressor = baseRegressor;
-    }
+	/**
+	 * Creates a new instance.
+	 * 
+	 * @param baseLearner
+	 *            the base learner which will be used internally to handle the data, not necessarily a regressor
+	 */
+	public TransformationBasedMultiTargetRegressor(Classifier baseLearner) {
+		this.baseLearner = baseLearner;
+	}
 
     /**
      * Returns the {@link Classifier} which is used internally by the learner.
      * 
-     * @return the internally used regressor
+     * @return the internally used learner
      */
-    public Classifier getBaseRegressor() {
-        return baseRegressor;
+    public Classifier getBaseLearner() {
+        return baseLearner;
     }
 
     /**
@@ -83,32 +84,4 @@ public abstract class TransformationBasedMultiTargetRegressor extends MultiLabel
         return result;
     }
 
-    /**
-     * Returns a string representation of the multi-target regression model by calling
-     * {@link #getModelForTarget(int)} for each target. Should always by called after the model has been
-     * initialized.
-     * 
-     * @return a string representation of the multi-target regression model
-     */
-    public String getModel() {
-        if (!isModelInitialized()) {
-            return "No model built yet!";
-        }
-        String modelSummary = "";
-        // get the model built for each target
-        for (int i = 0; i < numLabels; i++) {
-            modelSummary += "\n-- Model for target " + labelNames[i] + ":\n";
-            modelSummary += getModelForTarget(i);
-        }
-        return modelSummary;
-    }
-
-    /**
-     * Returns a string representation of the single-target regression model build for the target with this
-     * targetIndex.
-     * 
-     * @param targetIndex the target's index
-     * @return a string representation of the single-target regression model
-     */
-    protected abstract String getModelForTarget(int targetIndex);
 }

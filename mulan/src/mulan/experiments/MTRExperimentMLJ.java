@@ -32,11 +32,10 @@ import weka.classifiers.StohasticGradientBoosting;
 import weka.classifiers.functions.LibLINEAR;
 import weka.classifiers.functions.LinearRegression;
 import weka.classifiers.meta.Bagging;
-import weka.classifiers.meta.GridSearch9734Mod;
+import weka.classifiers.meta.GridSearch;
 import weka.classifiers.trees.REPTree;
 import weka.core.SelectedTag;
 import weka.core.Utils;
-import weka.filters.AllFilter;
 
 /**
  * This class replicates the results of the paper:<br>
@@ -98,7 +97,7 @@ public class MTRExperimentMLJ {
 			malsarMethods.add(malsarMethod);
 		}
 
-		if (containsMethod(mtMethods, malsarMethods)) {// the path to malsar's Matlab implementation is need
+		if (containsMethod(mtMethods, malsarMethods)) { // the path to malsar's Matlab implementation is needed
 			malsarPath = Utils.getOption("malsar", args);
 			if (malsarPath.length() > 0) { // malsar's path was set
 				MatlabProxyFactoryOptions options = new MatlabProxyFactoryOptions.Builder().setHidden(true).build();
@@ -426,8 +425,7 @@ public class MTRExperimentMLJ {
 			lr.setOutputAdditionalStats(false);
 			lr.setMinimal(true);
 
-			GridSearch9734Mod grid = initializeGridSearch();
-			grid.setFilter(new AllFilter()); // this filter is equal to not using a filter
+			GridSearch grid = new GridSearch();
 			grid.setClassifier(lr);
 
 			grid.setYProperty("classifier.ridge");
@@ -449,8 +447,7 @@ public class MTRExperimentMLJ {
 			LibLINEAR liblinear = new LibLINEAR();
 			liblinear.setSVMType(new SelectedTag(11, LibLINEAR.TAGS_SVMTYPE));
 
-			GridSearch9734Mod grid = initializeGridSearch();
-			grid.setFilter(new AllFilter()); // this filter is equal to not using a filter
+			GridSearch grid = new GridSearch();
 			grid.setClassifier(liblinear);
 
 			grid.setYProperty("classifier.cost");
@@ -483,25 +480,6 @@ public class MTRExperimentMLJ {
 			throw new Exception(baseRegressorName + " base learner is not supported!");
 		}
 		return stLearner;
-	}
-
-	/**
-	 * Initializes GridSearch with options that are common among all tunable classifiers. This is a modified version of
-	 * Weka's GridSearch that allows setting the number of cv folds and performs parameter search only once.
-	 * 
-	 * @return
-	 */
-	public static GridSearch9734Mod initializeGridSearch() {
-		GridSearch9734Mod grid = new GridSearch9734Mod();
-		// the metric to optimize
-		grid.setEvaluation(new SelectedTag(GridSearch9734Mod.EVALUATION_RMSE, GridSearch9734Mod.TAGS_EVALUATION));
-		grid.setGridIsExtendable(false);
-		grid.setNumExecutionSlots(numSlots);
-		grid.setSampleSizePercent(100);
-		grid.setInitialNumFolds(5);
-		grid.setStopAfterFirstGrid(true);
-		grid.setTraversal(new SelectedTag(GridSearch9734Mod.TRAVERSAL_BY_ROW, GridSearch9734Mod.TAGS_TRAVERSAL));
-		return grid;
 	}
 
 }

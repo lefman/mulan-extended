@@ -164,7 +164,7 @@ public class RegressorChain extends TransformationBasedMultiTargetRegressor {
         for (int targetIndex = 0; targetIndex < numLabels; targetIndex++) {
             selectedTargetIndices[targetIndex] = new ArrayList<Integer>();
             selectedFeatureIndices[targetIndex] = new ArrayList<Integer>();
-            chainRegressors[targetIndex] = AbstractClassifier.makeCopy(baseRegressor);
+            chainRegressors[targetIndex] = AbstractClassifier.makeCopy(baseLearner);
 
             // ======================= TRAINING SET CREATION START============================
             // create a copy of the training set and transform it according to the CC transformation
@@ -231,7 +231,7 @@ public class RegressorChain extends TransformationBasedMultiTargetRegressor {
                         // create a filtered meta classifier, used to ignore
                         // the ID attribute in the build process
                         FilteredClassifier fil = new FilteredClassifier();
-                        fil.setClassifier(AbstractClassifier.makeCopy(baseRegressor));
+                        fil.setClassifier(AbstractClassifier.makeCopy(baseLearner));
                         Remove remove = new Remove();
                         remove.setAttributeIndices("first");
                         remove.setInputFormat(foldKTrainset);
@@ -281,7 +281,7 @@ public class RegressorChain extends TransformationBasedMultiTargetRegressor {
                     resample.setInputFormat(chainRegressorsTrainSets[targetIndex]);
                     Instances sampledChainRegressorTrainSet = Filter.useFilter(
                             chainRegressorsTrainSets[targetIndex], resample);
-                    Classifier sampledChainRegressor = AbstractClassifier.makeCopy(baseRegressor);
+                    Classifier sampledChainRegressor = AbstractClassifier.makeCopy(baseLearner);
                     sampledChainRegressor.buildClassifier(sampledChainRegressorTrainSet);
 
                     // Make prediction for each in the training set instance
@@ -328,7 +328,6 @@ public class RegressorChain extends TransformationBasedMultiTargetRegressor {
         return mlo;
     }
 
-    @Override
     protected String getModelForTarget(int targetIndex) {
         // find the position of this target in the chain
         int posInChain = -1;

@@ -91,7 +91,7 @@ public class RandomLinearCombinationsNormalize extends TransformationBasedMultiT
 
 		for (int i = 0; i < numCombinations; i++) {
 			models[i] = new FilteredClassifier();
-			models[i].setClassifier(AbstractClassifier.makeCopy(baseRegressor));
+			models[i].setClassifier(AbstractClassifier.makeCopy(baseLearner));
 
 			int counter = 0;
 			ArrayList<Integer> nonZeroTargets = new ArrayList<>();
@@ -210,12 +210,6 @@ public class RandomLinearCombinationsNormalize extends TransformationBasedMultiT
 
 		MultiLabelOutput mlo = new MultiLabelOutput(lr.getCoefficients(), true);
 		return mlo;
-	}
-
-	@Override
-	protected String getModelForTarget(int targetIndex) {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 }
